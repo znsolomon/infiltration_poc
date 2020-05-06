@@ -1,4 +1,4 @@
-package enemy.ai.characters;
+package aitest.actors;
 
 public class Enemy extends Character{
 	public Enemy(){

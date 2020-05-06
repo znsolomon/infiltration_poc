@@ -1,9 +1,8 @@
-package enemy.ai.characters;
+package aitest.actors;
 
-public class Character {
+public class Character extends Actor{
 	private int health;
 	private int panic;
-	private String name;
 	
 	public int getHealth() {
 		return health;
@@ -16,11 +15,5 @@ public class Character {
 	}
 	public void setPanic(int panic) {
 		this.panic = panic;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
 	}
 }
