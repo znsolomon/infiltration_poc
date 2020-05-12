@@ -1,6 +1,11 @@
 package aitest.actors;
 
+import aitest.Coordinate;
+
 public class Character extends Actor{
+	public Character(Coordinate c) {
+		super(c);
+	}
 	private int health;
 	private int panic;
 	
