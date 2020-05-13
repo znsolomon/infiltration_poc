@@ -1,6 +1,7 @@
 package aitest.actors;
 
 import aitest.Coordinate;
+import library.Physics;
 
 public class Actor {
 	private String name;
@@ -24,7 +25,7 @@ public class Actor {
 	}
 	public void move(int[] vector) {
 		Coordinate old = this.getPosition();
-		Coordinate current = new Coordinate(old.getX()+vector[0],old.getY()+vector[1]);
+		Coordinate current = new Coordinate(Physics.addVectors(old.toArr(), vector));
 		this.setPosition(current);
 	}
 }
