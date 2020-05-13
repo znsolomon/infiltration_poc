@@ -8,6 +8,11 @@ public class Coordinate {
 		this.setX(x);
 		this.setY(y);
 	}
+	
+	public Coordinate(int[] a) {
+		this.setX(a[0]);
+		this.setY(a[1]);
+	}
 
 	public int getX() {
 		return x;
@@ -23,5 +28,8 @@ public class Coordinate {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+	public int[] toArr() {
+		return new int[] {this.x,this.y};
 	}
 }

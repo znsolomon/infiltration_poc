@@ -14,12 +14,12 @@ public class Main {
 		running = true;
 		Scanner input = new Scanner(System.in);
 		Map levelOne = new Map(8,8, new Coordinate(0,0), new Coordinate[] {new Coordinate(7,0), new Coordinate(7,7)}, walls);
-		print2dArray(levelOne.printGrid());
+		print2dArray(levelOne.getGrid());
 		while (running) {
 			System.out.println("Player move (WASD)");
 			String move = input.nextLine();
 			levelOne.playerMove(move);
-			print2dArray(levelOne.printGrid());
+			print2dArray(levelOne.getGrid());
 		}
 	}
 
