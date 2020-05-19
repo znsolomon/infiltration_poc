@@ -3,6 +3,7 @@ package aitest;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import aitest.FindPlayer.Detect;
 import aitest.actors.*;
 import library.Physics;
 
@@ -11,6 +12,7 @@ public class Map {
 	public static final String empty = "_____";
 	public ArrayList<String> eKeys = new ArrayList<String>();
 	public ArrayList<int[]> pVisited = new ArrayList<int[]>();
+	public ArrayList<int[]> pVisitedOld = new ArrayList<int[]>();
 	public String[][] grid;
 	public Map(int width, int height, Coordinate p, Coordinate[] e, Coordinate[] walls){
 		grid = new String[width][height];
@@ -73,21 +75,49 @@ public class Map {
 			System.out.println("Invalid move");
 		}
 	}
-	
+
 	public void moveEnemies() {
 		//Figure out a target for each of the enemies
 		for(String key : eKeys) {
 			//Get a list of each square the enemies can see
 			Coordinate pos = objects.get(key).getPosition();
+			int[] posArr = new int[] {pos.getX(),pos.getY()};
 			HashMap<int[], String> fov = new HashMap<int[], String>();
+			ArrayList<FindPlayer> important = new ArrayList<FindPlayer>();
+			Boolean foundPlayer = false;
+			Boolean foundLast = false;
 			//Check each direction in turn
 			fov.putAll(look(pos,true,-1));
 			fov.putAll(look(pos,false,-1));
 			fov.putAll(look(pos,true,1));
 			fov.putAll(look(pos,false,1));
-			
-			//Target the player directly if they can see it
-			//Target the places the player moved this turn
+			for(int[] location : fov.keySet()) {
+				Coordinate loc = new Coordinate(location[0],location[1]);
+				if (fov.get(location) == "Player") {//Target the player directly if they can see it
+					important.add(new FindPlayer(Detect.PLAYER,Physics.calcDistance(location, posArr),loc));
+					foundPlayer = true;
+					//Remove the lesser locations if a higher has been found
+					//Order goes: Location from last turn -> Location from this turn -> Player's location
+					important.removeIf(find -> find.getDetect() != Detect.PLAYER);
+				}
+				else if(pVisited.contains(location) && foundPlayer == false) {//Target the places the player moved this turn
+					important.add(new FindPlayer(Detect.TURN1,Physics.calcDistance(location,posArr),loc));
+					foundLast = true;
+					//Remove the lesser locations if a higher has been found
+					//Order goes: Location from last turn -> Location from this turn -> Player's location
+					important.removeIf(find -> find.getDetect() == Detect.TURN2);
+				}
+				else if(pVisitedOld.contains(location) && foundLast == false) {
+					important.add(new FindPlayer(Detect.TURN2,Physics.calcDistance(location,posArr),loc));
+				}
+			}
+			//Get target based on which remaining location is closest
+			int highDistance = 100;
+			for (FindPlayer find : important) {
+				if (find.getDistance() < highDistance) {
+					((Enemy) objects.get(key)).setTarget(find.getLocation());
+				}
+			}
 		}
 	}
 	
