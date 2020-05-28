@@ -33,6 +33,8 @@ public class Main {
 				}
 			}
 			System.out.println("Enemy turn");
+			levelOne.moveEnemies();
+			
 			running = false;
 		}
 	}

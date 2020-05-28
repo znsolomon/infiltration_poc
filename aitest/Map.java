@@ -1,6 +1,7 @@
 package aitest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import aitest.FindPlayer.Detect;
@@ -92,39 +93,46 @@ public class Map {
 			fov.putAll(look(pos,true,1));
 			fov.putAll(look(pos,false,1));
 			for(int[] location : fov.keySet()) {
-				Coordinate loc = new Coordinate(location[0],location[1]);
+				Coordinate loc = new Coordinate(location);
 				if (fov.get(location) == "Player") {//Target the player directly if they can see it
 					important.add(new FindPlayer(Detect.PLAYER,Physics.calcDistance(location, posArr),loc));
 					foundPlayer = true;
 					//Remove the lesser locations if a higher has been found
 					//Order goes: Location from last turn -> Location from this turn -> Player's location
 					important.removeIf(find -> find.getDetect() != Detect.PLAYER);
+					System.out.println("Player");
 				}
-				else if(pVisited.contains(location) && foundPlayer == false) {//Target the places the player moved this turn
+				else if(check2by1Arr(pVisited,location) && foundPlayer == false) {//Target the places the player moved this turn
 					important.add(new FindPlayer(Detect.TURN1,Physics.calcDistance(location,posArr),loc));
 					foundLast = true;
 					//Remove the lesser locations if a higher has been found
 					//Order goes: Location from last turn -> Location from this turn -> Player's location
 					important.removeIf(find -> find.getDetect() == Detect.TURN2);
 				}
-				else if(pVisitedOld.contains(location) && foundLast == false) {
+				else if(check2by1Arr(pVisitedOld,location) && foundLast == false) {
 					important.add(new FindPlayer(Detect.TURN2,Physics.calcDistance(location,posArr),loc));
 				}
 			}
 			//Get target based on which remaining location is closest
-			int highDistance = 100;
+			double highDistance = 100;
 			for (FindPlayer find : important) {
 				if (find.getDistance() < highDistance) {
 					((Enemy) objects.get(key)).setTarget(find.getLocation());
+					highDistance = find.getDistance();
 				}
 			}
+			//If no target is found, enemy will not move
+			if(((Enemy) objects.get(key)).getTarget() == null) {
+				((Enemy) objects.get(key)).setTarget(objects.get(key).getPosition());
+			}
+			System.out.println(Arrays.toString(((Enemy) objects.get(key)).getTarget().toArr()));
 		}
 	}
 	
 	public HashMap<int[], String> look(Coordinate pos, boolean axis, int dir){
 		HashMap<int[], String> seen = new HashMap<int[], String>();
 		if(axis) { //X axis if true, y axis if false
-			for (int i=pos.getX(); i < grid.length || i > -1; i+=dir) {
+			for (int i=pos.getX(); i < grid.length && i > -1; i+=dir) {
 				String current = grid[i][pos.getY()];
 				if (current.contains("Wall")) {
 					break;
@@ -135,7 +143,7 @@ public class Map {
 			}
 		}
 		else {
-			for (int i=pos.getY(); i < grid[0].length || i > -1; i+=dir) {
+			for (int i=pos.getY(); i < grid[0].length && i > -1; i+=dir) {
 				String current = grid[pos.getX()][i];
 				if (current.contains("Wall")) {
 					break;
@@ -146,6 +154,21 @@ public class Map {
 			}
 		}
 		return seen;
+	}
+	
+	/**
+	 * Checks an arraylist for a target array. Only works on 2x1 arrays
+	 * @param list The list to be checked
+	 * @param check The array being checked against the list
+	 * @return True if 'list' contains 'check', false otherwise
+	 */
+	public boolean check2by1Arr(ArrayList<int[]> list, int[] check) {
+		for(int[] item : list) {
+			if (item[0] == check[0] && item[1] == check[1]) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public String[][] getGrid(){
