@@ -41,6 +41,12 @@ public class Map {
 		}
 	}
 	
+	public void newTurn() {
+		pVisitedOld.clear();
+		pVisitedOld.addAll(pVisited);
+		pVisited.clear();
+	}
+	
 	public void playerMove(String dir) {
 		int[] vector = new int[]{0,0};
 		switch (dir) {
@@ -80,6 +86,7 @@ public class Map {
 	public void moveEnemies() {
 		//Figure out a target for each of the enemies
 		for(String key : eKeys) {
+			Boolean foundTarget = false;
 			//Get a list of each square the enemies can see
 			Coordinate pos = objects.get(key).getPosition();
 			int[] posArr = new int[] {pos.getX(),pos.getY()};
@@ -100,7 +107,6 @@ public class Map {
 					//Remove the lesser locations if a higher has been found
 					//Order goes: Location from last turn -> Location from this turn -> Player's location
 					important.removeIf(find -> find.getDetect() != Detect.PLAYER);
-					System.out.println("Player");
 				}
 				else if(check2by1Arr(pVisited,location) && foundPlayer == false) {//Target the places the player moved this turn
 					important.add(new FindPlayer(Detect.TURN1,Physics.calcDistance(location,posArr),loc));
@@ -119,10 +125,11 @@ public class Map {
 				if (find.getDistance() < highDistance) {
 					((Enemy) objects.get(key)).setTarget(find.getLocation());
 					highDistance = find.getDistance();
+					foundTarget = true;
 				}
 			}
 			//If no target is found, enemy will not move
-			if(((Enemy) objects.get(key)).getTarget() == null) {
+			if(!foundTarget) {
 				((Enemy) objects.get(key)).setTarget(objects.get(key).getPosition());
 			}
 			System.out.println(Arrays.toString(((Enemy) objects.get(key)).getTarget().toArr()));

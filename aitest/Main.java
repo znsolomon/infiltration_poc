@@ -14,12 +14,13 @@ public class Main {
 	
 	public static void main(String[] args) {
 		running = true;
-		pTurn = true;
-		pMoves = 3;
 		Scanner input = new Scanner(System.in);
 		Map levelOne = new Map(8,8, new Coordinate(0,0), new Coordinate[] {new Coordinate(7,0), new Coordinate(7,7)}, walls);
 		print2dArray(levelOne.getGrid());
 		while (running) {
+			levelOne.newTurn();
+			pTurn = true;
+			pMoves = 3;
 			System.out.println("Player turn");
 			while(pTurn) {
 				System.out.println("Moves left: " + Integer.toString(pMoves));
@@ -34,8 +35,6 @@ public class Main {
 			}
 			System.out.println("Enemy turn");
 			levelOne.moveEnemies();
-			
-			running = false;
 		}
 	}
 
