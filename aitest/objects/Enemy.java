@@ -1,8 +1,8 @@
-package aitest.actors;
+package aitest.objects;
 
 import aitest.Coordinate;
 
-public class Enemy extends Character{
+public class Enemy extends Actor{
 	private Coordinate target;
 	enum Type{
 		RUSH
@@ -18,6 +18,7 @@ public class Enemy extends Character{
 		default:
 			break;
 		}
+		this.setMoves(3);
 	}
 	public Coordinate getTarget() {
 		return target;

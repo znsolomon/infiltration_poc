@@ -1,13 +1,13 @@
-package aitest.actors;
+package aitest.objects;
 
 import aitest.Coordinate;
 import library.Physics;
 
-public class Actor {
+public class Element {
 	private String name;
 	private Coordinate position;
 	
-	public Actor(Coordinate c) {
+	public Element(Coordinate c) {
 		this.setPosition(c);
 	}
 	

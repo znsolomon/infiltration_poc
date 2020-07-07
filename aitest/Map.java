@@ -5,11 +5,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import aitest.FindPlayer.Detect;
-import aitest.actors.*;
+import aitest.objects.*;
 import library.Physics;
 
 public class Map {
-	public HashMap<String,Actor> objects = new HashMap<String,Actor>();
+	public HashMap<String,Element> elements = new HashMap<String,Element>();
+	public HashMap<String,Actor> actors = new HashMap<String,Actor>();
 	public static final String empty = "_____";
 	public ArrayList<String> eKeys = new ArrayList<String>();
 	public ArrayList<int[]> pVisited = new ArrayList<int[]>();
@@ -22,12 +23,12 @@ public class Map {
 				grid[w][h] = empty;
 			}
 		}
-		objects.put("player", new Player(p));
+		actors.put("player", new Player(p));
 		grid[p.getX()][p.getY()] = "Player";
 		int eCount = 0;
 		for(Coordinate c : e) {
 			String key = "Enemy" + Integer.toString(eCount+1);
-			objects.put(key, new Enemy(e[eCount],key,0));
+			actors.put(key, new Enemy(e[eCount],key,0));
 			grid[c.getX()][c.getY()] = key;
 			eKeys.add(key);
 			eCount++;
@@ -35,7 +36,7 @@ public class Map {
 		int wCount = 0;
 		for(Coordinate c : walls) {
 			String key = "Wall" + Integer.toString(wCount+1);
-			objects.put(key, new Wall(walls[wCount]));
+			elements.put(key, new Wall(walls[wCount]));
 			grid[c.getX()][c.getY()] = key;
 			wCount++;
 		}
@@ -65,21 +66,23 @@ public class Map {
 		default:
 			break;
 		}
-		Coordinate pos = objects.get("player").getPosition();
+		Coordinate pos = actors.get("player").getPosition();
 		pVisited.add(new int[] {pos.getX(),pos.getY()});
 		move(vector,"player");
 	}
 	
-	public void move(int[] vector, String key) {
-		Coordinate old = objects.get(key).getPosition();
+	public boolean move(int[] vector, String key) {
+		Coordinate old = actors.get(key).getPosition();
 		int[] n = Physics.addVectors(old.toArr(),vector);
 		if(n[0] >= 0 && n[0] < grid.length && n[1] >= 0 && n[1] < grid[0].length && grid[n[0]][n[1]] == empty) {
 			grid[old.getX()][old.getY()] = empty;
-			objects.get(key).move(vector);
-			grid[objects.get(key).getPosition().getX()][objects.get(key).getPosition().getY()] = objects.get(key).getName();
+			actors.get(key).move(vector);
+			grid[actors.get(key).getPosition().getX()][actors.get(key).getPosition().getY()] = actors.get(key).getName();
+			return true;
 		}
 		else {
 			System.out.println("Invalid move");
+			return false;
 		}
 	}
 
@@ -88,7 +91,7 @@ public class Map {
 		for(String key : eKeys) {
 			Boolean foundTarget = false;
 			//Get a list of each square the enemies can see
-			Coordinate pos = objects.get(key).getPosition();
+			Coordinate pos = actors.get(key).getPosition();
 			int[] posArr = new int[] {pos.getX(),pos.getY()};
 			HashMap<int[], String> fov = new HashMap<int[], String>();
 			ArrayList<FindPlayer> important = new ArrayList<FindPlayer>();
@@ -123,16 +126,36 @@ public class Map {
 			double highDistance = 100;
 			for (FindPlayer find : important) {
 				if (find.getDistance() < highDistance) {
-					((Enemy) objects.get(key)).setTarget(find.getLocation());
+					((Enemy) actors.get(key)).setTarget(find.getLocation());
 					highDistance = find.getDistance();
 					foundTarget = true;
 				}
 			}
 			//If no target is found, enemy will not move
 			if(!foundTarget) {
-				((Enemy) objects.get(key)).setTarget(objects.get(key).getPosition());
+				((Enemy) actors.get(key)).setTarget(actors.get(key).getPosition());
 			}
-			System.out.println(Arrays.toString(((Enemy) objects.get(key)).getTarget().toArr()));
+			System.out.println(Arrays.toString(((Enemy) actors.get(key)).getTarget().toArr()));
+			
+			//Move each enemy as close as possible to their target
+			int moveCount = 0;
+			while (moveCount < actors.get(key).getMoves()) {
+				//Booleans check if the way is clear
+				boolean moveUp = true;
+				boolean moveDown = true;
+				boolean moveLeft = true;
+				boolean moveRight = true;
+				//Break if the enemy is on the target
+				if (actors.get(key).getPosition() == ((Enemy) actors.get(key)).getTarget()) {
+					break;
+				}
+				if (actors.get(key).getPosition().getX() > ((Enemy) actors.get(key)).getTarget().getX() && moveUp) {
+					
+				}
+				else if (actors.get(key).getPosition().getX() < ((Enemy) actors.get(key)).getTarget().getX() && moveDown) {
+					
+				}
+			}
 		}
 	}
 	
@@ -180,5 +203,11 @@ public class Map {
 	
 	public String[][] getGrid(){
 		return grid;
+	}
+	public HashMap<String,Element> getElements(){
+		return elements;
+	}
+	public HashMap<String,Actor> getActors(){
+		return actors;
 	}
 }

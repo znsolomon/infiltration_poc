@@ -1,13 +1,14 @@
-package aitest.actors;
+package aitest.objects;
 
 import aitest.Coordinate;
 
-public class Character extends Actor{
-	public Character(Coordinate c) {
+public class Actor extends Element{
+	public Actor(Coordinate c) {
 		super(c);
 	}
 	private int health;
 	private int panic;
+	private int moves;
 	
 	public int getHealth() {
 		return health;
@@ -20,5 +21,11 @@ public class Character extends Actor{
 	}
 	public void setPanic(int panic) {
 		this.panic = panic;
+	}
+	public int getMoves() {
+		return moves;
+	}
+	public void setMoves(int moves) {
+		this.moves = moves;
 	}
 }
